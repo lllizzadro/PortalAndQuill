@@ -1,0 +1,16 @@
+:root {
+    --color-bg:      #0c1a15;   /* near-black phthalo */
+    --color-primary: #0e3b2e;   /* dark phthalo green */
+    --color-accent:  #6b4ea0;   /* purple */
+    --color-text:    #e8e6df;   /* warm parchment */
+    --color-muted:   #9fb0a8;
+}
+
+* { box-sizing: border-box; }   /* sane sizing; we'll discuss this later */
+
+body {
+    margin: 0;
+    font-family: Georgia, "Times New Roman", serif;
+    background: var(--color-bg);
+    color: var(--color-text);
+}

@@ -1,0 +1,3 @@
+# Normalize line endings across macOS and Windows.
+# Git stores text files with LF and checks them out with each OS's native style.
+* text=auto
