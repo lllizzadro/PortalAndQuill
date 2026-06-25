@@ -20,10 +20,12 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 - **Colors** (defined as CSS custom properties in `static/css/style.css`, named by role):
   - `--color-primary` — dark phthalo green
   - `--color-accent` — purple
-  - plus a dark phthalo background (currently "pine," with "emerald black" parked as a commented alternate) and a warm "parchment" text color
+  - `--color-gold` — antique gold (key accent for the "render 2" look: frames, hairlines, headings)
+  - plus a dark phthalo background (currently "pine," with "emerald black" parked as a commented alternate), a lifted-green panel surface, and a warm "parchment" text color
   - `style.css` is the single source of truth for hex values — do NOT duplicate them here.
+- **Target aesthetic:** rebuild ChatGPT "render 2" — a **deep green + gold, ornate, rich** fantasy-library homepage (left-aligned hero, gold-framed panels), borrowing some sci-fi / constellation ornaments. Tagline: "Books Beyond Worlds." NOTE: Robbie reviewed the renders and now wants this richer look, *not* minimalist — this supersedes the earlier "minimal with flair" direction. Build mobile-first.
+- **Imagery:** hero background, event/category thumbnails, storefront photo, and book covers are image files to be sourced later (hoping to generate via ChatGPT). Build now with placeholder panels (in a `static/images/` slot) and swap real art in as it arrives.
 - **Logo:** owner will provide one later; there's a placeholder slot in the header in `base.html`.
-- Visual mockups are being produced on another AI platform and will be translated into HTML/CSS.
 
 ## Tech stack & structure
 
@@ -45,6 +47,6 @@ The `.venv/` folder is **not** committed — it's recreated from `requirements.t
 
 ## Current status
 
-All five pages (Home, About, Visit, Contact, Events) render from templates that extend `base.html`. The shared header/nav links them all via `url_for`, and the theme stylesheet is wired up. Pages currently hold placeholder content and the layout is essentially unstyled.
+All five pages (Home, About, Visit, Contact, Events) render from templates that extend `base.html`. The shared header/nav links them all via `url_for`, and the theme stylesheet is wired up. Pages hold placeholder content and the layout is essentially unstyled.
 
-**Next step:** style the header/nav and overall layout (mobile-first), and/or fill in real page copy. Visual mockups are pending from another platform and will guide the styling.
+**Next step:** style the site mobile-first toward "render 2" (deep green + gold), starting from a type/color foundation, then header/nav, hero, card sections, and footer — using placeholder panels where images will go.
