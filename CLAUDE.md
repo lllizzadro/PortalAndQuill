@@ -1,6 +1,6 @@
 # Portal and Quill
 
-Website for **Portal and Quill**, a friend's **fantasy / sci-fi bookstore**. Built in **Flask** by an owner who is **learning Flask and web development** (this is their first Flask app).
+Website for **Portal and Quill**, a **fantasy / sci-fi bookstore** owned by the user's friend **Robbie**. Built in **Flask** by the user, who is **learning Flask and web development** (this is their first Flask app).
 
 ## How to work on this project (important)
 
@@ -10,8 +10,8 @@ The user is learning and wants to be **guided, not have code written for them**.
 
 A **brochure / info site** — no catalog, accounts, or payments (for now).
 
-- **Pages (phase 1):** Home, About the Store, Visit Us, Contact
-- **Pages (later):** Events, Books & Recommendations, FAQ
+- **Pages (built):** Home, About the Store, Visit Us, Contact, Events (Events added at owner Robbie's request)
+- **Pages (later / ideas):** Books & Recommendations, FAQ
 
 ## Design system
 
@@ -20,15 +20,15 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 - **Colors** (defined as CSS custom properties in `static/css/style.css`, named by role):
   - `--color-primary` — dark phthalo green
   - `--color-accent` — purple
-  - plus dark/stone-gray/black backgrounds and a warm "parchment" text color
-  - These hex values are placeholders to be tuned against real mockups.
+  - plus a dark phthalo background (currently "pine," with "emerald black" parked as a commented alternate) and a warm "parchment" text color
+  - `style.css` is the single source of truth for hex values — do NOT duplicate them here.
 - **Logo:** owner will provide one later; there's a placeholder slot in the header in `base.html`.
 - Visual mockups are being produced on another AI platform and will be translated into HTML/CSS.
 
 ## Tech stack & structure
 
 - Python 3.14, Flask. Dependencies pinned in `requirements.txt`.
-- `app.py` — routes (currently just `home()` at `/`).
+- `app.py` — routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `contact` (`/contact`), `events` (`/events`), each rendering the same-named template.
 - `templates/` — Jinja templates. `base.html` is the shared shell (head, header, nav, footer); pages `{% extends %}` it and fill `{% block content %}`.
 - `static/css/style.css` — theme tokens + global styles.
 
@@ -45,6 +45,6 @@ The `.venv/` folder is **not** committed — it's recreated from `requirements.t
 
 ## Current status
 
-Home page renders from `home.html` extending `base.html`, with the theme stylesheet wired up via `url_for`.
+All five pages (Home, About, Visit, Contact, Events) render from templates that extend `base.html`. The shared header/nav links them all via `url_for`, and the theme stylesheet is wired up. Pages currently hold placeholder content and the layout is essentially unstyled.
 
-**Next step:** add the About / Visit Us / Contact routes in `app.py` and the matching templates, then add the nav links in `base.html`.
+**Next step:** style the header/nav and overall layout (mobile-first), and/or fill in real page copy. Visual mockups are pending from another platform and will guide the styling.
