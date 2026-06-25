@@ -84,8 +84,74 @@ nav a:hover {
     color: var(--color-gold);
 }
 
+a:hover {
+    color: var(--color-gold);
+}
+
 nav a.active {
     color: var(--color-gold);
     border-bottom: 2px solid var(--color-gold);
     padding-bottom: 2px;
+}
+
+.hero {
+    min-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 1.5rem;
+
+    background-color: var(--color-bg);
+    background-image:
+        linear-gradient(to right, rgba(2, 20, 16, 0.92), rgba(2, 20, 16, 0.55) 60%, rgba(2, 20, 16, 0.3)),
+        url("../images/hero.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.eyebrow {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.8rem;
+    color: var(--color-gold);
+    margin: 0 0 0.75rem;
+}
+
+.hero h1 {
+    font-size: 2.75rem;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+}
+
+.hero-tagline {
+    color: var(--color-muted);
+    font-size: 1.15rem;
+    line-height: 1.6;
+    max-width: 45ch;
+    margin: 0 0 1.75rem;
+}
+
+.btn {
+    display: inline-block;
+    background: var(--color-accent);
+    color: var(--color-text);
+    text-decoration: none;
+    font-family: var(--font-display);
+    letter-spacing: 1px;
+    padding: 0.8rem 1.6rem;
+    border-radius: 6px;
+}
+
+.btn:hover {
+    filter: brightness(1.15)
+}
+
+@media (min-width: 760px) {
+    .hero {
+        padding: 4rem 3rem;
+    }
+    .hero h1 {
+        font-size: 4rem;
+    }
 }
