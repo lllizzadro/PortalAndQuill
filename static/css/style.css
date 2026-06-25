@@ -1,16 +1,91 @@
 :root {
-    --color-bg:      #0A1F18;   /* pine. alt: emerald black #001A14 */
+    --color-bg:      #021410; /* #001A14; /* #0A1F18;   /* Deep Phthalo Green with Alts */
     --color-primary: #0e3b2e;   /* dark phthalo green */
     --color-accent:  #6b4ea0;   /* purple */
     --color-text:    #e8e6df;   /* warm parchment */
     --color-muted:   #9fb0a8;
+    --color-gold:    #c9a86a;   /* antique gold accent */
+    --color-surface: #102a20;   /* lifted green for panels and cards */
+    --font-display: "Cinzel", Georgia, serif;
+    --font-body: "EB Garamond", Georgia, "Times New Roman", serif;
+
 }
 
 * { box-sizing: border-box; }   /* sane sizing; we'll discuss this later */
 
 body {
     margin: 0;
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--font-body);
     background: var(--color-bg);
     color: var(--color-text);
+}
+
+h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-gold);
+}
+
+header > a { /* The Portal and Quill Wordmark */
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    color: var(--color-text);
+    text-decoration: none;
+    letter-spacing: 1px;
+}
+
+nav {
+    display: none;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    padding-top: 1rem;
+}
+
+nav.open {
+    display: flex;
+}
+
+.nav-toggle {
+    background: none;
+    border: none;
+    color: var(--color-text);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.nav-toggle:hover { color: var(--color-gold); }
+
+@media (min-width: 760px) {
+    .nav-toggle { display: none; }
+    nav {
+        display: flex;
+        flex-direction: row;
+        width: auto;
+        padding-top: 0;
+    }
+}
+
+nav a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: var(--color-gold);
+}
+
+nav a.active {
+    color: var(--color-gold);
+    border-bottom: 2px solid var(--color-gold);
+    padding-bottom: 2px;
 }
