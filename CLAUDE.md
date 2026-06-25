@@ -43,6 +43,8 @@ pip install -r requirements.txt
 flask run --debug                # serves http://127.0.0.1:5000
 ```
 
+**macOS note:** port 5000 is occupied by AirPlay Receiver (Control Center), so on a Mac run `flask run --debug --port 5001` and open http://127.0.0.1:5001 instead. Windows has no such conflict — 5000 is fine there.
+
 The `.venv/` folder is **not** committed — it's recreated from `requirements.txt` on each machine. Whenever you `pip install` something new, re-run `pip freeze > requirements.txt` and commit it.
 
 ## Current status
