@@ -1,8 +1,28 @@
 {% extends "base.html" %}
 
-{% block title %}Events{% endblock %}
+{% block title %}Events - Portal and Quill{% endblock %}
 
 {% block content %}
-<h1>Events</h1>
-    <p>We have a variety of events coming up. Check back soon for more information.</p>
+<section class="section">
+    <div class="section-head">
+        <h2 class="section-title">Upcoming Events</h2>
+    </div>
+
+    <div class="event-list">
+        {% for event in events %}
+        <article class="event">
+            <img class="event-image" src="{{ url_for('static', filename='images/' ~ event.image) }}"" alt="">
+            <div class="event-info">
+                <div class="card-date">
+                    <span class="card-month">{{ event.month }}</span>
+                    <span class="card-day">{{ event.day }}</span>
+                </div>
+                <h3 class="event-title">{{ event.title }}</h3>
+                <p class="event-when">{{ event.when }}</p>
+                <p class="event-description">{{ event.description }}</p>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}

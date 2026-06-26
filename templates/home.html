@@ -6,7 +6,30 @@
 <section class="hero">  
     <h1>Portal &amp; Quill</h1>
     <p class="eyebrow">A small shop with infinite exits</p>
-    <p class="hero-tagline">Find Yours</p>
+    <!-- <p class="hero-tagline">Take the long way home.</p> -->
+</section>
+
+<section class="section">
+    <div class="section-head">
+        <h2 class="section-title">Upcoming Events</h2>
+        <a href="{{ url_for('events') }}" class=""section-link">View all &rarr;</a>
+    </div>
+
+    <div class="card-grid">
+        {% for event in events %}
+        <article class="card">
+            <img class="card-image" src="{{ url_for('static', filename='images/' ~ event.image) }}" alt="">
+            <div class="card-body">  
+                <div class="card-date">
+                    <span class="card-month">{{ event.month }}</span>
+                    <span class="card-day">{{ event.day }}</span>
+                </div>
+                <h3 class="card-title">{{ event.title }}</h3>
+                <p class="card-when">{{ event.when }}</p>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
 </section>
 
 {% endblock %}
