@@ -4,35 +4,37 @@ Website for **Portal and Quill**, a **fantasy / sci-fi bookstore** owned by the 
 
 ## How to work on this project (important)
 
-The user is learning and wants to be **guided, not have code written for them**. Hand them one digestible step at a time, explain the *why* (not just the *what*), and let them type and run the code themselves. Show patterns and boilerplate with explanation, but let them fill things in. Let them feel a problem before showing the fix. Don't dump full implementations unless they ask.
+The user is learning and wants to be **guided, not have code written for them**. Hand them one digestible step at a time, explain the *why* (not just the *what*), and let them type and run the code themselves. Show patterns and boilerplate with explanation, but let them fill things in. Let them feel a problem before showing the fix.
+
+**Editing boundary:** Only edit project files when the user *explicitly* asks you to change a specific thing ("refactor X", "add this line", "you make the change"). Treat "let's do X", "suggest", or "review" as requests to **guide**, not to write code. Reading/inspecting files for guidance is always fine; keeping this file current is fine when asked.
 
 ## Scope
 
 A **brochure / info site** — no catalog, accounts, or payments (for now).
 
-- **Pages (built):** Home, About the Store, Visit Us, Contact, Events (Events added at owner Robbie's request)
-- **Pages (later / ideas):** Books & Recommendations, FAQ
+- **Pages (built & styled):** Home, Events, About the Store, Visit & Contact. (Events added at Robbie's request. The standalone Contact page was merged into Visit — contact is a `mailto:` message box there, no backend.)
+- **Pages (later / ideas):** Books & Recommendations, FAQ.
 
 ## Design system
 
-- **Mobile-first** — must scale well on phones (viewport meta tag is set in `base.html`).
-- **Theme leans into fantasy / sci-fi.**
-- **Colors** (defined as CSS custom properties in `static/css/style.css`, named by role):
-  - `--color-primary` — dark phthalo green
-  - `--color-accent` — purple
-  - `--color-gold` — antique gold (key accent for the "render 2" look: frames, hairlines, headings)
-  - plus a dark phthalo background (currently "pine," with "emerald black" parked as a commented alternate), a lifted-green panel surface, and a warm "parchment" text color
-  - `style.css` is the single source of truth for hex values — do NOT duplicate them here.
-- **Target aesthetic:** rebuild ChatGPT "render 2" — a **deep green + gold, ornate, rich** fantasy-library homepage (left-aligned hero, gold-framed panels), borrowing some sci-fi / constellation ornaments. Tagline: "Books Beyond Worlds." NOTE: Robbie reviewed the renders and now wants this richer look, *not* minimalist — this supersedes the earlier "minimal with flair" direction. Build mobile-first.
-- **Imagery:** hero background, event/category thumbnails, storefront photo, and book covers are image files to be sourced later (hoping to generate via ChatGPT). Build now with placeholder panels (in a `static/images/` slot) and swap real art in as it arrives.
-- **Logo:** owner will provide one later; there's a placeholder slot in the header in `base.html`.
+- **Mobile-first** — base styles target phones; desktop is layered on via a single `@media (min-width: 760px)` block at the **bottom** of `style.css` (base rules first, media queries last, or a later base rule will quietly override the media query).
+- **Theme:** deep green + gold, ornate "fantasy library" — the ChatGPT "render 2" look (rich, not minimalist). Tagline: "Books Beyond Worlds."
+- **Colors** — CSS custom properties in `static/css/style.css`, named by role (`--color-bg`, `--color-primary` dark phthalo green, `--color-accent` purple, `--color-gold` antique gold, `--color-surface` lifted-green panel, `--color-text` parchment, `--color-muted`, `--color-eggplant`). `style.css` is the single source of truth for hex values — do NOT duplicate them here.
+- **Type:** `--font-display` = Cinzel (headings/wordmark), `--font-body` = EB Garamond (reading); loaded from Google Fonts in `base.html`. Parchment for reading text, muted for secondary/meta.
+- **Imagery:** real art lives in `static/images/` as optimized JPEGs (hero, event card thumbnails, per-page banners). **Workflow for new art:** convert the source PNG and resize — `sips -s format jpeg -s formatOptions 80 -Z 1600 in.png --out out.jpg` — keep files small (≈<300 KB); the heavy source PNGs are not committed.
+- **Logo:** owner will provide one later; placeholder slot in the header in `base.html`.
 
 ## Tech stack & structure
 
 - Python 3.14, Flask. Dependencies pinned in `requirements.txt`.
-- `app.py` — routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `contact` (`/contact`), `events` (`/events`), each rendering the same-named template.
-- `templates/` — Jinja templates. `base.html` is the shared shell (head, header, nav, footer); pages `{% extends %}` it and fill `{% block content %}`.
-- `static/css/style.css` — theme tokens + global styles.
+- `app.py` — routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`). A module-level `EVENTS` list (list of dicts) is the single source of truth for events; `home` passes `EVENTS[:3]` (preview), `events` passes the full list.
+- `templates/`
+  - `base.html` — shared shell (head, header, hamburger nav, footer). Nav is a `nav_links` list looped with `{% for %}`; the active link is detected via `request.endpoint`.
+  - `_macros.html` — the `page_header(title, intro, kicker, variant)` macro for secondary-page mastheads (kicker + Cinzel title + intro + ✦ divider + constellation SVG). The per-page banner image is set in CSS via `.page-header.<variant>` (e.g. `.page-header.events`), **not** inline. Any template using the macro must `{% import "_macros.html" as ui %}` (imports are per-template, not global).
+  - page templates `{% extends "base.html" %}` and fill `{% block content %}`.
+- `static/css/style.css` — design tokens + all styles. Reusable components: `.btn`, `.card`, `.section`, `.prose` (centered reading column), `.page-header`, `.visit-block`, the `.hours`/`.contact` row lists, etc.
+- `static/js/nav.js` — hamburger nav toggle, plus the Visit page "Email Us" button (builds a `mailto:` to info@portalandquill.com from the textarea; guarded with `if (emailBtn)` so it's harmless on pages without it).
+- `static/images/` — optimized JPEGs only.
 
 ## Setup on a new machine
 
@@ -49,6 +51,14 @@ The `.venv/` folder is **not** committed — it's recreated from `requirements.t
 
 ## Current status
 
-All five pages (Home, About, Visit, Contact, Events) render from templates that extend `base.html`. The shared header/nav links them all via `url_for`, and the theme stylesheet is wired up. Pages hold placeholder content and the layout is essentially unstyled.
+The full brochure site is **built and styled**, mobile-first, in the deep-green-and-gold "render 2" look:
 
-**Next step:** style the site mobile-first toward "render 2" (deep green + gold), starting from a type/color foundation, then header/nav, hero, card sections, and footer — using placeholder panels where images will go.
+- Shared header with a responsive hamburger nav + active-page highlight; a minimal footer (just a copyright line for now).
+- **Home:** full-bleed hero (image with overlaid title) + an "Upcoming Events" preview (3 cards from `EVENTS`).
+- **Events:** banner masthead + long-form event list (shares `EVENTS`).
+- **About:** banner masthead + prose reading column with a gold drop cap, signature, and a closing flourish/CTA.
+- **Visit & Contact:** banner masthead, Hours + Find Us panels, an embedded Google map, and a `mailto:` message box.
+
+Some content is still placeholder (event details, About copy, the phone number), and the **logo is a placeholder**.
+
+**Possible next steps:** flesh out the footer; deploy the site; swap in the real logo; build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components; the parked backend projects (events database, server-side contact form).

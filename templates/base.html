@@ -18,8 +18,7 @@
             ('home', 'Home'),
             ('events', 'Events'),
             ('about', 'About the Store'),
-            ('visit', 'Visit Us'),
-            ('contact', 'Contact Us'),
+            ('visit', 'Visit & Contact'),
         ] %}
         <nav>
             {% for endpoint, label in nav_links %}
@@ -33,7 +32,20 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 Portal &amp; Quill.</p>
+        <p class="footer-wordmark">Portal &amp; Quill</p>
+        <p class="footer-tagline">Take The Long Way Home</p>
+    
+        <a class="footer-social" href="https://www.instagram.com/portal_and_quill"
+           aria-label="Portal & Quill on Instagram" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+                 stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="2" y="2" width="20" height="20" rx="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+            </svg>
+        </a>
+    
+        <p class="footer-copy">&copy; 2026 Portal &amp; Quill. All rights reserved.</p>
     </footer>
     <script src="{{ url_for('static', filename='js/nav.js')}}"></script>
 </body>

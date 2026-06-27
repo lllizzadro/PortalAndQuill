@@ -38,10 +38,6 @@ def about():
 def visit():
     return render_template('visit.html')
 
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
-
 @app.route('/events')
 def events():
     return render_template('events.html', events=Events)

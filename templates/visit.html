@@ -1,8 +1,54 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 
 {% block title %}Visit Us - Portal and Quill{% endblock %}
 
 {% block content %}
-<h1>Visit Us</h1>
-    <p>We're located in east nashville.</p>
+
+{{ ui.page_header(
+    "Visit Us",
+    kicker="Take the Path Less Traveled",
+    variant="visit"
+) }}
+
+<section class="section">
+    <div class="visit-info">
+
+        <div class="visit-block">
+            <h2 class="section-title">Hours</h2>
+            <dl class="hours">
+                <div><dt>Mon – Fri</dt><dd>10am – 6pm</dd></div>
+                <div><dt>Saturday</dt><dd>10am – 6pm</dd></div>
+                <div><dt>Sunday</dt><dd>10am – 6pm</dd></div>
+            </dl>
+        </div>
+
+        <div class="visit-block">
+            <h2 class="section-title">Find Us</h2>
+            <p>2021 Gallatin Pike N, Suite 130<br>Madison, TN 37115</p>
+            <dl class="contact">
+                <div><dt>Phone</dt><dd><a href="tel:+16151234567">615.123.4567</a></dd></div>
+                <div><dt>Email</dt><dd><a href="mailto:info@portalandquill.com">info@portalandquill.com</a></dd></div>
+            </dl>
+            <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=2021+Gallatin+Pike+N+Suite+130+Madison+TN+37115">Get Directions →</a>
+        </div>
+
+    </div>
+
+    <div class="map-embed">
+        <iframe
+            src="https://maps.google.com/maps?q=2021+Gallatin+Pike+N+Suite+130+Madison+TN+37115&output=embed"
+            title="Map to Portal &amp; Quill"
+            loading="lazy">
+        </iframe>
+    </div>
+
+    <div class="contact-form">
+        <h2 class="section-title">Send Us a Message</h2>
+        <p>Questions, special orders, or just want to say hello? Drop us a line.</p>
+        <textarea id="message" rows="5" placeholder="Your message..."></textarea>
+        <button type="button" id="email-btn" class="btn">Email Us →</button>
+    </div>
+</section>
+
 {% endblock %}
