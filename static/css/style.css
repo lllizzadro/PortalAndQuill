@@ -106,6 +106,10 @@ nav a.active {
     border-bottom: 1px solid var(--color-gold);
 }
 
+.hero-content {
+    max-width: 250px;
+}
+
 .eyebrow {
     font-family: var(--font-display);
     text-transform: uppercase;
@@ -119,6 +123,7 @@ nav a.active {
     font-size: 2.75rem;
     line-height: 1.1;
     margin: 0 0 1rem;
+    text-shadow: 0 2px 18px rgba(2, 20, 16, 0.7);
 }
 
 .hero-tagline {
@@ -302,12 +307,61 @@ nav a.active {
     max-width: 60ch;
 }
 
+.page-header {
+    text-align: center;
+    padding: 4rem 1.5rem;
+    border-bottom: 1px solid var(--color-gold);
+    background-color: var(--color-bg);
+    background-image: url("../images/starBackground.jpg");
+    background-size: cover;
+    background-position: center;
+}
+
+.page-constellation {
+    display: block;
+    margin: 0 auto 0.75rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    margin: 0 0 1rem;
+}
+
+.page-intro {
+    color: var(--color-text);
+    max-width: 52ch;
+    margin: 0 auto;
+    line-height: 1.7;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 1.75rem;
+}
+
+.divider-line {
+    height: 1px;
+    width: 64px;
+    background: rgba(201. 168. 106. 0.55);
+}
+
+.divider-mark {
+    color: var(--color-gold);
+}
+
 @media (min-width: 760px) {
     .hero {
         padding: 4rem 3rem;
     }
     .hero h1 {
         font-size: 4rem;
+    }
+    .hero-content {
+        max-width: 760px;
     }
     .card-grid {
         grid-template-columns: 1fr 1fr 1fr;
