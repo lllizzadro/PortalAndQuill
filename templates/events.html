@@ -1,33 +1,22 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 
 {% block title %}Events - Portal and Quill{% endblock %}
 
 {% block content %}
-<section class="page-header">
-    <svg class="page-constellation" viewBox="0 0 150 40" width="150" height="40" aria-hidden="true">
-        <line x1="20" y1="22" x2="55" y2="12" stroke="#c9a86a" stroke-opacity="0.5" stroke-width="1"/>
-        <line x1="55" y1="12" x2="95" y2="26" stroke="#c9a86a" stroke-opacity="0.5" stroke-width="1"/>
-        <line x1="95" y1="26" x2="130" y2="15" stroke="#8a6fc4" stroke-opacity="0.5" stroke-width="1"/>
-        <circle cx="20" cy="22" r="1.6" fill="#c9a86a"/>
-        <circle cx="130" cy="15" r="1.6" fill="#c9a86a"/>
-        <circle cx="55" cy="12" r="2.6" fill="#8a6fc4"/>
-        <circle cx="95" cy="26" r="2.2" fill="#8a6fc4"/>
-    </svg>
-    <p class="eyebrow">What's going on at the shop</p>
-    <h1 class="page-title">Upcoming Events</h1>
-    <p class="page-intro">From author signings to late-night book clubs, here's what's happening this season.</p>
-    <div class="divider">
-        <span class="divider-line"></span>
-        <span class="divider-mark"></span>
-        <span class="divider-line"></span>
-    </div>
-</section>
+
+{{ ui.page_header(
+    "Upcoming Events",
+    "From author signings to late-night book clubs, here's what's happing this season.",
+    kicker="What's on at the shop",
+    variant="events"
+) }}
 
 <section class="section">
     <div class="event-list">
         {% for event in events %}
         <article class="event">
-            <img class="event-image" src="{{ url_for('static', filename='images/' ~ event.image) }}"" alt="">
+            <img class="event-image" src="{{ url_for('static', filename='images/' ~ event.image) }}" alt="">
             <div class="event-info">
                 <div class="card-date">
                     <span class="card-month">{{ event.month }}</span>

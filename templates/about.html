@@ -1,24 +1,33 @@
 {% extends "base.html" %}
+{% import "_macros.html" as ui %}
 
 {% block title %}About - Portal and Quill{% endblock %}
 
 {% block content %}
-<h1>About the Store</h1>
-    <p>Portal & Quill was created from a lifelong love of books and the 
-        belief that the best stories stay with us long after we've turned 
-        the final page. We grew up getting lost in fantasy worlds, 
-        imagining impossible places, and discovering characters who 
-        felt like lifelong friends. We wanted to build a place where 
-        others could experience that same sense of wonder.<br><br>
-        We're a locally owned independent bookstore specializing in 
-        carefully curated fantasy, science fiction, and imaginative fiction. 
-        Rather than trying to carry everything, we focus on stocking books 
-        we genuinely love and stories we can't wait to share.<br><br>
-        More than anything, Portal & Quill is meant to be a 
-        community. Whether you're searching for your next favorite 
-        series, joining a book club, attending an author event, or 
-        simply looking for a quiet place surrounded by stories, we 
-        hope you'll feel at home here.<br><br>
-        So come visit us.<br><br> 
-        Your next adventure is waiting.</p>
+
+{{ ui.page_header(
+    "About The Store",
+    "Where we came from and where we're going.",
+    variant="about"
+) }}
+
+<section class="prose">
+    <p>Portal &amp; Quill was created from a lifelong love of books and the belief that the best stories stay with us long after we've turned the final page. We grew up getting lost in fantasy worlds, imagining impossible places, and discovering characters who felt like lifelong friends. We wanted to build a place where others could experience that same sense of wonder.</p>
+
+    <p>We're a locally owned independent bookstore specializing in carefully curated fantasy, science fiction, and imaginative fiction. Rather than trying to carry everything, we focus on stocking books we genuinely love and stories we can't wait to share.</p>
+
+    <p>More than anything, Portal &amp; Quill is meant to be a community. Whether you're searching for your next favorite series, joining a book club, attending an author event, or simply looking for a quiet place surrounded by stories, we hope you'll feel at home here.</p>
+
+    <p class="signature">— Robbie, owner of Portal &amp; Quill</p>
+</section>
+
+<section class="page-closing">
+    <div class="divider">
+        <span class="divider-line"></span>
+        <span class="divider-mark">✦</span>
+        <span class="divider-line"></span>
+    </div>
+    <p class="closing-line">Your next adventure is waiting.</p>
+    <a href="{{ url_for('visit') }}" class="btn">Plan your visit →</a>
+</section>
 {% endblock %}
