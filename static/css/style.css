@@ -9,7 +9,6 @@
     --color-eggplant:#36234f;
     --font-display: "Cinzel", Georgia, serif;
     --font-body: "EB Garamond", Georgia, "Times New Roman", serif;
-
 }
 
 * { box-sizing: border-box; }   /* sane sizing; we'll discuss this later */
@@ -19,11 +18,11 @@ body {
     font-family: var(--font-body);
     font-size: 1.0625rem;
     line-height: 1.7;
-    background: var(--color-bg);
     color: var(--color-text);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    background-color: var(--color-bg);
 }
 
 h1, h2, h3 {
@@ -54,15 +53,20 @@ header > a { /* The Portal and Quill Wordmark */
 }
 
 nav {
-    display: none;
+    display: flex;
     flex-direction: column;
     gap: 1rem;
     width: 100%;
-    padding-top: 1rem;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
 nav.open {
-    display: flex;
+    max-height: 320px;
+    opacity: 1;
+    padding-top: 1rem;
 }
 
 .nav-toggle {
@@ -115,16 +119,8 @@ a:hover {
     max-width: 250px;
 }
 
-.eyebrow {
-    font-family: var(--font-display);
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: 0.8rem;
-    color: var(--color-gold);
-    margin: 0 0 0.75rem;
-}
-
 .hero h1 {
+    font-family: var(--font-display);
     font-size: 2.75rem;
     line-height: 1.1;
     margin: 0 0 1rem;
@@ -139,23 +135,51 @@ a:hover {
     margin: 0 0 1.75rem;
 }
 
+.eyebrow {
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 0.8rem;
+    color: var(--color-gold);
+    margin: 0 0 0.75rem;
+}
+
 .btn {
     display: inline-block;
-    background: var(--color-accent);
+    background: var(--color-eggplant);
     color: var(--color-text);
     text-decoration: none;
     font-family: var(--font-display);
     letter-spacing: 1px;
     padding: 0.8rem 1.6rem;
+    border: 1px solid var(--color-gold);
     border-radius: 6px;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.btn:hover {
+    background: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(107, 78, 160, 0.45);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--color-gold);
+}
+
+.btn-secondary:hover {
+    background: rgba(201, 168, 106, 0.12);
+    box-shadow: 0 6px 18px rgba(201, 168, 106, 0.25);
+}
+
+.btn:focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
 }
 
 .visit-block .btn {
     margin-top: 1.25rem;
-}
-
-.btn:hover {
-    filter: brightness(1.15)
 }
 
 .section {
@@ -425,10 +449,10 @@ a:hover {
 
 .visit-block {
     background: var(--color-surface);
-    border: 1px solid rgba(201, 168, 106, 0.55);
+    border: 1px solid rgba(201, 168, 106, 0.5);   /* was 0.55 — fainter */
     border-radius: 10px;
     padding: 1.5rem 1.75rem;
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.40);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);     /* was 0 10px 24px / 0.40 — softer */
 }
 
 .hours,
@@ -556,6 +580,9 @@ footer {
         flex-direction: row;
         width: auto;
         padding-top: 0;
+        max-height: none;
+        opacity: 1;
+        overflow: visible;
     }
     .event {
         flex-direction: row;
