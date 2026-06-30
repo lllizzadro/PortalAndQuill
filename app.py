@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, Response
 
 app = Flask(__name__)
 
@@ -67,6 +67,21 @@ def visit():
 @app.route('/events')
 def events():
     return render_template('events.html', events=Events)
+
+@app.route('/sitemap.xml')
+def sitemap():
+    pages = ['home', 'about', 'visit', 'events']
+    xml = render_template('sitemap.xml', pages=pages)
+    return Response(xml, mimetype="application/xml")
+
+@app.route('/robots.txt')
+def robots():
+    lines = [
+        "User-agent: *",
+        "Allow: /",
+        f"Sitemap: {SITE_URL}/sitemap.xml",
+    ]
+    return Response("\n".join(lines), mimetype="text/plain")
 
 @app.errorhandler(404)
 def page_not_found(e):
