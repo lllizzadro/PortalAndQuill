@@ -32,11 +32,12 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 - **Uniform gold borders on panels** — a quieter "card hierarchy" tier was tried; the user prefers consistent prominent gold framing (it's part of the identity). Only `.prose` is intentionally borderless (editorial).
 - **Contact is `mailto:`** — a real server-side contact form is parked, not wanted yet.
 - **Dark map = a CSS `invert()`/`hue-rotate()` filter** on the iframe (Visit page) — intentional, not a bug; it's the cheap "good enough" route. Leaflet + dark tiles is the known upgrade path if a cleaner map is ever wanted.
+- **One general meta description, not per-page** — a single store-wide `meta_description` (`{% set %}` var in `base.html`, reused by the description + OG + Twitter tags). Per-page descriptions were considered and rejected: not worth it for a 4-page brochure, and Google rewrites the snippet ~⅔ of the time anyway. Don't re-propose per-page.
 
 ## Tech stack & structure
 
 - Python 3.14, Flask. Dependencies pinned in `requirements.txt` (includes **gunicorn**, the production server).
-- `app.py` — routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`). A module-level `EVENTS` list (list of dicts) is the single source of truth for events; `home` passes `EVENTS[:3]` (preview), `events` passes the full list. An `@app.after_request` hook stamps **security headers + a strict CSP** on every response (see Security).
+- `app.py` — page routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`), plus utility routes `robots` (`/robots.txt`, `text/plain`) and `sitemap` (`/sitemap.xml`, `application/xml`, rendered from the `sitemap.xml` template). A module-level `EVENTS` list (list of dicts) is the single source of truth for events; `home` passes `EVENTS[:3]` (preview), `events` passes the full list. `SITE_URL` constant = the canonical base URL (the `fly.dev` URL now, real domain later); `STRUCTURED_DATA` dict = the JSON-LD `BookStore` schema. An `@app.context_processor` (`inject_globals`) exposes `site_url` + `structured_data` to every template. An `@app.errorhandler(404)` renders the themed `404.html` with a real `404` status. An `@app.after_request` hook stamps **security headers + a strict CSP** on every response (see Security).
 - `templates/`
   - `base.html` — shared shell (head, header, hamburger nav, footer). Nav is a `nav_links` list looped with `{% for %}`; active link via `request.endpoint`. Footer has wordmark, tagline, an Instagram link, and copyright. Favicon linked here.
   - `_macros.html` — the `page_header(title, intro, kicker, variant)` macro for secondary-page mastheads (kicker + Cinzel title + intro + ✦ divider + constellation SVG). The per-page banner image is set in CSS via `.page-header.<variant>` (e.g. `.page-header.events`), **not** inline. Any template using the macro must `{% import "_macros.html" as ui %}` (imports are per-template, not global).
@@ -48,27 +49,25 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 
 ## Security
 
-- A Flask `after_request` sets baseline headers (`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy`) plus a **strict Content-Security-Policy** — no `'unsafe-inline'`; allowlists only Google Fonts (`fonts.googleapis.com`/`fonts.gstatic.com`) and the Google Maps iframe (`www.google.com`/`maps.google.com`). If you add an external resource or any inline script/style, the CSP must be updated or it'll be blocked.
+- A Flask `after_request` sets baseline headers (`Strict-Transport-Security` (HSTS, `max-age=31536000`), `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy`) plus a **strict Content-Security-Policy** — no `'unsafe-inline'`; allowlists only Google Fonts (`fonts.googleapis.com`/`fonts.gstatic.com`) and the Google Maps iframe (`www.google.com`/`maps.google.com`). If you add an external resource or any inline script/style, the CSP must be updated or it'll be blocked.
 - No backend attack surface (no DB, accounts, or server-processed forms — contact is `mailto:`), so CSRF/input-sanitization/SQLi defenses are intentionally absent.
 - **Never run the dev server or `--debug` in production** (the Werkzeug debugger is an RCE vector) — production uses gunicorn. HTTPS is provided automatically by Fly. Run `pip-audit` periodically (and after `pip install`) for dependency CVEs.
 
-## SEO & hardening roadmap (planned, not yet built)
+## SEO & hardening roadmap
 
-Adapted from the user's other project (a portfolio site *with* a backend/guestbook). The big difference: Portal and Quill is a **backend-less brochure site**, so the whole class of form/DB/session defenses doesn't apply here. We're already *ahead* on one item the portfolio deferred — a strict CSP is already in place (see Security).
+Adapted from the user's other project (a portfolio site *with* a backend/guestbook). The big difference: Portal and Quill is a **backend-less brochure site**, so the whole class of form/DB/session defenses doesn't apply here.
 
-**Do now (no domain or logo needed):**
-- **HSTS header** — the one security header currently missing from the `after_request` hook. (Add a sensible `max-age`; **hold off on `preload`/`includeSubDomains`** until the custom domain is final.)
-- **Per-page meta descriptions** — a `{% block meta_description %}` in `base.html` with a default, overridden per page.
-- **Open Graph + Twitter Card** tags (`summary_large_image`) for rich link previews.
-- **JSON-LD structured data** — use **`BookStore`/`LocalBusiness`**, NOT the portfolio's `Person`. High value for a local shop (address + hours + geo → Google local/maps). Needs the **real phone number** first — the Visit page still has placeholder `555.123.4567`; omit the phone field rather than ship a fake one in structured data.
-- **Themed 404** — custom page returning a real `404` status (not a 200).
-- **`robots.txt` + `sitemap.xml` routes** — sitemap lists the 4 pages.
-- **`rel="noopener noreferrer"` audit** on external `target="_blank"` links (the footer Instagram link).
-- **Cleanup:** drop **Flask-WTF / WTForms** from `requirements.txt` — installed but unused (no forms), so dead weight.
+**Done — shipped & live on Fly (2026-06-30):**
+- **HSTS** — `Strict-Transport-Security: max-age=31536000` in `after_request`. (Still holding off on `preload`/`includeSubDomains` until the custom domain is final.)
+- **Meta description** — a single **general** description (see Decisions for why not per-page).
+- **Open Graph + Twitter Card** (`summary_large_image`) in `base.html` head — title via `self.title()`, description via the shared `meta_description` var, `og:url` = `site_url + request.path`, `og:image` = interim `hero.jpg` (branded 1200×630 pending the logo).
+- **JSON-LD** — `BookStore` schema as a Python dict (`STRUCTURED_DATA`), injected via context processor, rendered with `| tojson`. **Phone omitted** until the real number lands. The inline `<script type="application/ld+json">` is a *data block*, so it needs **no** CSP change.
+- **Themed 404** — `templates/404.html` (uses `page_header` macro with `variant="notfound"` → `border-bottom: none`), served by `@app.errorhandler(404)` returning a real `404` status.
+- **`robots.txt` + `sitemap.xml`** — both served as **routes** (not static files) built from `SITE_URL`; robots `text/plain`, sitemap `application/xml` from a Jinja template looping the 4 page endpoints. Sitemap is intentionally minimal (`<loc>` only — no fabricated `lastmod`/`changefreq`/`priority`).
+- **`noopener` audit** — footer Instagram link is now `rel="noopener noreferrer"` (the only external `_blank` link).
+- **Deps cleanup** — `Flask-WTF`/`WTForms` removed from `requirements.txt` (unused; were stale-listed and not even installed).
 
-**Implementation note:** build canonical / `og:url` / sitemap URLs from a single `SITE_URL` config constant (set to the `fly.dev` URL now, flip to the real domain later). That constant approach means **ProxyFix is NOT needed** here (the portfolio only needed it because it derived absolute URLs from the live request behind Fly's proxy).
-
-**Suggested order:** HSTS → meta descriptions → OG/Twitter → JSON-LD → 404 → robots/sitemap → noopener audit + deps cleanup. (Easy security win first, then roughly easiest-to-meatiest.)
+**Implementation note (done):** canonical / `og:url` / sitemap URLs are built from the single **`SITE_URL`** constant in `app.py` (the `fly.dev` URL now; flip to the real domain later — one edit cascades everywhere). This sidesteps **ProxyFix** (we never derive absolute URLs from the proxied request).
 
 **Deferred — needs the custom domain (pending from Robbie):**
 - Canonical tag's final *value* + a **canonical-host 301 redirect** (www + old `fly.dev` → apex, one canonical URL).
@@ -111,7 +110,7 @@ The site is **live on Fly.io**. Production runs **gunicorn** (`gunicorn app:app 
 
 ## Current status
 
-The full brochure site is **built, styled, security-hardened, and live on Fly.io with CI/CD**, mobile-first, in the deep-green-and-gold "render 2" look:
+The full brochure site is **built, styled, SEO- and security-hardened, and live on Fly.io with CI/CD**, mobile-first, in the deep-green-and-gold "render 2" look:
 
 - Shared header with responsive **animated** hamburger nav + active-page highlight. Footer: wordmark, "Books Beyond Worlds" tagline, Instagram link, copyright.
 - **Home:** full-bleed hero (image with overlaid title) + "Upcoming Events" preview (3 cards from `EVENTS`).
@@ -121,4 +120,4 @@ The full brochure site is **built, styled, security-hardened, and live on Fly.io
 
 Still placeholder: the **logo** (favicon + header slot both ready to swap), some content (event details, About copy, phone number).
 
-**Possible next steps:** work the **SEO & hardening roadmap** above (HSTS is the easy first win); swap in the real logo when Robbie delivers it; finalize placeholder content; build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components; the parked backend projects (events database, server-side contact form).
+**Possible next steps:** the SEO/hardening **"Do now" set is shipped** — what remains on that roadmap is **domain-gated** (canonical 301 + flip `SITE_URL`, Search Console, Cloudflare/DNSSEC, SPF/DMARC) and **logo-gated** (real favicon, branded 1200×630 OG image), plus dropping the **real phone** into the JSON-LD + Visit page once Robbie provides it. Beyond that: swap in the real logo, finalize placeholder content, build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components, and the parked backend projects (events database, server-side contact form).
