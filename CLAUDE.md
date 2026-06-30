@@ -52,6 +52,42 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 - No backend attack surface (no DB, accounts, or server-processed forms — contact is `mailto:`), so CSRF/input-sanitization/SQLi defenses are intentionally absent.
 - **Never run the dev server or `--debug` in production** (the Werkzeug debugger is an RCE vector) — production uses gunicorn. HTTPS is provided automatically by Fly. Run `pip-audit` periodically (and after `pip install`) for dependency CVEs.
 
+## SEO & hardening roadmap (planned, not yet built)
+
+Adapted from the user's other project (a portfolio site *with* a backend/guestbook). The big difference: Portal and Quill is a **backend-less brochure site**, so the whole class of form/DB/session defenses doesn't apply here. We're already *ahead* on one item the portfolio deferred — a strict CSP is already in place (see Security).
+
+**Do now (no domain or logo needed):**
+- **HSTS header** — the one security header currently missing from the `after_request` hook. (Add a sensible `max-age`; **hold off on `preload`/`includeSubDomains`** until the custom domain is final.)
+- **Per-page meta descriptions** — a `{% block meta_description %}` in `base.html` with a default, overridden per page.
+- **Open Graph + Twitter Card** tags (`summary_large_image`) for rich link previews.
+- **JSON-LD structured data** — use **`BookStore`/`LocalBusiness`**, NOT the portfolio's `Person`. High value for a local shop (address + hours + geo → Google local/maps). Needs the **real phone number** first — the Visit page still has placeholder `555.123.4567`; omit the phone field rather than ship a fake one in structured data.
+- **Themed 404** — custom page returning a real `404` status (not a 200).
+- **`robots.txt` + `sitemap.xml` routes** — sitemap lists the 4 pages.
+- **`rel="noopener noreferrer"` audit** on external `target="_blank"` links (the footer Instagram link).
+- **Cleanup:** drop **Flask-WTF / WTForms** from `requirements.txt` — installed but unused (no forms), so dead weight.
+
+**Implementation note:** build canonical / `og:url` / sitemap URLs from a single `SITE_URL` config constant (set to the `fly.dev` URL now, flip to the real domain later). That constant approach means **ProxyFix is NOT needed** here (the portfolio only needed it because it derived absolute URLs from the live request behind Fly's proxy).
+
+**Suggested order:** HSTS → meta descriptions → OG/Twitter → JSON-LD → 404 → robots/sitemap → noopener audit + deps cleanup. (Easy security win first, then roughly easiest-to-meatiest.)
+
+**Deferred — needs the custom domain (pending from Robbie):**
+- Canonical tag's final *value* + a **canonical-host 301 redirect** (www + old `fly.dev` → apex, one canonical URL).
+- Swap hardcoded `fly.dev` → the real domain throughout.
+- **Google Search Console** — submit sitemap, request indexing.
+- **Cloudflare** proxy (Full strict) + **DNSSEC** — only configurable once the domain is on Cloudflare.
+- **SPF/DMARC** — only if a real mailbox is set up on the domain (contact is `mailto:`, so the site sends no mail itself).
+
+**Deferred — needs the logo (pending from Robbie):**
+- Swap the placeholder favicon for the real mark.
+- A properly **branded OG image** (1200×630). An interim one cut from existing art is fine in the meantime.
+
+**Not applicable now — would only matter if a backend is ever added** (server-side contact form, events DB, accounts/sessions). Revisit these *together* if that day comes:
+- **CSRF** (`CSRFProtect` / Flask-WTF) + `{{ csrf_token() }}`, **honeypot** field — defend server-processed forms.
+- **`SECRET_KEY` via env** — signs sessions/flash/CSRF; nothing to sign yet.
+- **Parameterized SQL** — no database.
+- **Rate limiting** — no abusable endpoint on a static brochure.
+- Off-page "inbound links (GitHub/LinkedIn)" — the bookstore equivalent is the Instagram bio link + a **Google Business Profile** + local directories; that's the owner's task, later.
+
 ## Setup on a new machine (development)
 
 ```bash
@@ -85,4 +121,4 @@ The full brochure site is **built, styled, security-hardened, and live on Fly.io
 
 Still placeholder: the **logo** (favicon + header slot both ready to swap), some content (event details, About copy, phone number).
 
-**Possible next steps:** swap in the real logo when Robbie delivers it; finalize placeholder content; build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components; the parked backend projects (events database, server-side contact form).
+**Possible next steps:** work the **SEO & hardening roadmap** above (HSTS is the easy first win); swap in the real logo when Robbie delivers it; finalize placeholder content; build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components; the parked backend projects (events database, server-side contact form).

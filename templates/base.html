@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Portal and Quill{% endblock %}</title>
+    {% set meta_description = "Nashville-based fantasy and sci-fi bookstore offering up curated books, events, and more. Take the long way home." %}
+    <meta name="description" content="{{ meta_description }}">
+    <!-- Open Graph (Facebook, iMessage, LinkedIn, Discord, Slack) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Portal and Quill">
+    <meta property="og:title" content="{{ self.title() }}">
+    <meta property="og:description" content="{{ meta_description }}">
+    <meta property="og:url" content="{{ site_url }}{{ request.path }}">
+    <meta property="og:image" content="{{ site_url }}/static/images/hero.jpg">
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ self.title() }}">
+    <meta name="twitter:description" content="{{ meta_description }}">
+    <meta name="twitter:image" content="{{ site_url }}/static/images/hero.jpg">
+    <script type="application/ld+json">{{ structured_data | tojson }}</script>
     <link rel="icon" href="{{ url_for('static', filename='favicon.svg') }}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

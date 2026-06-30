@@ -2,6 +2,32 @@ from flask import Flask, render_template
 
 app = Flask(__name__)
 
+SITE_URL = 'https://portalandquill.fly.dev'
+
+STRUCTURED_DATA = {
+    "@context": "https://schema.org",
+    "@type": "BookStore",
+    "name": "Portal and Quill",
+    "url": SITE_URL,
+    "image": SITE_URL + "/static/images/hero.jpg",
+    "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "2021 Gallatin Pike N, Suite 130",
+        "addressLocality": "Madison",
+        "addressRegion": "TN",
+        "postalCode": "37115",
+        "addressCountry": "US",
+    },
+    "openingHoursSpecification": [
+        {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "10:00",
+            "closes": "18:00",
+        }
+    ],
+}
+
 Events = [
     {
     "month": "Jul", "day": "07",
@@ -42,8 +68,18 @@ def visit():
 def events():
     return render_template('events.html', events=Events)
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.context_processor
+def inject_globals():
+    return {"site_url": SITE_URL, "structured_data": STRUCTURED_DATA}
+
 @app.after_request
 def set_security_headers(response):
+    response.headers["Strict-Transport-Security"] = "max-age=31536000"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["X-Frame-Options"] = "DENY"
