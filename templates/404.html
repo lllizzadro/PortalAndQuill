@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% import "_macros.html" as ui %}
+
+{% block title %}Page Not Found - Portal and Quill{% endblock %}
+
+{% block content %}
+{{ ui.page_header(
+    "This Portal Leads Nowhere",
+    "The page you were seeking has slipped between worlds. Perhaps it was moved, perhaps it was lost—or perhaps it was never written.",
+    kicker="404",
+    variant="notfound"
+) }}
+<div class="page-closing">
+    <a class="btn" href="{{ url_for('home') }}">Return to the Realm →</a>
+</div>
+{% endblock %}
