@@ -33,11 +33,13 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 - **Contact is `mailto:`** — a real server-side contact form is parked, not wanted yet.
 - **Dark map = a CSS `invert()`/`hue-rotate()` filter** on the iframe (Visit page) — intentional, not a bug; it's the cheap "good enough" route. Leaflet + dark tiles is the known upgrade path if a cleaner map is ever wanted.
 - **One general meta description, not per-page** — a single store-wide `meta_description` (`{% set %}` var in `base.html`, reused by the description + OG + Twitter tags). Per-page descriptions were considered and rejected: not worth it for a 4-page brochure, and Google rewrites the snippet ~⅔ of the time anyway. Don't re-propose per-page.
+- **DNSSEC skipped, not just deferred** — considered once the domain was on Cloudflare and rejected as low-value: DNSSEC guards against DNS response forgery, which mainly matters for sites with logins/payments to steal. A static brochure site with no accounts has little to protect this way, and Cloudflare's anycast network already makes spoofing harder than a small DNS host would. Don't re-propose unless the site's risk profile changes (e.g. a backend/accounts gets added).
+- **Apex domain (`portalandquill.com`) is canonical, not `www`** — shorter, more natural to say aloud/print, and the more common default for a small business site. `www` and the old `fly.dev` URL both 301-redirect to it.
 
 ## Tech stack & structure
 
 - Python 3.14, Flask. Dependencies pinned in `requirements.txt` (includes **gunicorn**, the production server).
-- `app.py` — page routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`), plus utility routes `robots` (`/robots.txt`, `text/plain`) and `sitemap` (`/sitemap.xml`, `application/xml`, rendered from the `sitemap.xml` template). A module-level `EVENTS` list (list of dicts) is the single source of truth for events; `home` passes `EVENTS[:3]` (preview), `events` passes the full list. `SITE_URL` constant = the canonical base URL (the `fly.dev` URL now, real domain later); `STRUCTURED_DATA` dict = the JSON-LD `BookStore` schema. An `@app.context_processor` (`inject_globals`) exposes `site_url` + `structured_data` to every template. An `@app.errorhandler(404)` renders the themed `404.html` with a real `404` status. An `@app.after_request` hook stamps **security headers + a strict CSP** on every response (see Security).
+- `app.py` — page routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`), plus utility routes `robots` (`/robots.txt`, `text/plain`) and `sitemap` (`/sitemap.xml`, `application/xml`, rendered from the `sitemap.xml` template). A module-level `EVENTS` list (list of dicts) is the single source of truth for events; `home` passes `EVENTS[:3]` (preview), `events` passes the full list. `SITE_URL` constant = the canonical base URL (now the **real domain**, `https://portalandquill.com`); `STRUCTURED_DATA` dict = the JSON-LD `BookStore` schema. An `@app.context_processor` (`inject_globals`) exposes `site_url` + `structured_data` to every template. An `@app.before_request` hook (`before_request`) 301-redirects non-canonical hosts (`www.portalandquill.com`, `portalandquill.fly.dev`) to `SITE_URL + request.path`, checking `request.host` (not `request.url`, to avoid false-positive substring matches). An `@app.errorhandler(404)` renders the themed `404.html` with a real `404` status. An `@app.after_request` hook stamps **security headers + a strict CSP** on every response (see Security).
 - `templates/`
   - `base.html` — shared shell (head, header, hamburger nav, footer). Nav is a `nav_links` list looped with `{% for %}`; active link via `request.endpoint`. Footer has wordmark, tagline, an Instagram link, and copyright. Favicon linked here.
   - `_macros.html` — the `page_header(title, intro, kicker, variant)` macro for secondary-page mastheads (kicker + Cinzel title + intro + ✦ divider + constellation SVG). The per-page banner image is set in CSS via `.page-header.<variant>` (e.g. `.page-header.events`), **not** inline. Any template using the macro must `{% import "_macros.html" as ui %}` (imports are per-template, not global).
@@ -67,14 +69,18 @@ Adapted from the user's other project (a portfolio site *with* a backend/guestbo
 - **`noopener` audit** — footer Instagram link is now `rel="noopener noreferrer"` (the only external `_blank` link).
 - **Deps cleanup** — `Flask-WTF`/`WTForms` removed from `requirements.txt` (unused; were stale-listed and not even installed).
 
-**Implementation note (done):** canonical / `og:url` / sitemap URLs are built from the single **`SITE_URL`** constant in `app.py` (the `fly.dev` URL now; flip to the real domain later — one edit cascades everywhere). This sidesteps **ProxyFix** (we never derive absolute URLs from the proxied request).
+**Implementation note (done):** canonical / `og:url` / sitemap URLs are built from the single **`SITE_URL`** constant in `app.py` (now the real domain — one edit cascaded everywhere, as designed). This sidesteps **ProxyFix** (we never derive absolute URLs from the proxied request).
 
-**Deferred — needs the custom domain (pending from Robbie):**
-- Canonical tag's final *value* + a **canonical-host 301 redirect** (www + old `fly.dev` → apex, one canonical URL).
-- Swap hardcoded `fly.dev` → the real domain throughout.
-- **Google Search Console** — submit sitemap, request indexing.
-- **Cloudflare** proxy (Full strict) + **DNSSEC** — only configurable once the domain is on Cloudflare.
-- **SPF/DMARC** — only if a real mailbox is set up on the domain (contact is `mailto:`, so the site sends no mail itself).
+**Done — custom domain live (2026-07-01):**
+- **Domain on Cloudflare, proxied.** Robbie's Namecheap-registered `portalandquill.com` now uses Cloudflare nameservers; registration itself is still with Namecheap (no plan to transfer — Cloudflare Registrar isn't necessary for the DNS/proxy/security benefits). Root + `www` both proxied (orange cloud) via A/AAAA records pointing at Fly's IPs.
+- **Fly TLS certs issued** for both `portalandquill.com` and `www.portalandquill.com` (`fly certs add`). Because traffic is proxied, Fly's normal A/AAAA-match validation doesn't work — issuance needed the `_fly-ownership` TXT record + `_acme-challenge` CNAME per hostname (Fly's documented workaround for CDN-fronted domains). Cloudflare SSL/TLS mode set to **Full (strict)**.
+- **`SITE_URL` flipped** to `https://portalandquill.com` (apex chosen as canonical over `www`).
+- **Canonical-host 301 redirect** — the `before_request` hook described above in Tech stack & structure.
+- **Google Search Console** — domain verified (DNS TXT method), sitemap submitted and indexed.
+- **DNSSEC — deliberately skipped**, not just deferred. Judged low-value for a static brochure site with no accounts/logins/payments (see Decisions).
+
+**Paused — Robbie hit setup trouble, resume later:**
+- **Google Workspace mailbox** (`info@portalandquill.com`) — Robbie started Workspace signup but got stuck; picking back up at an unspecified later date. Once live, this unblocks **SPF/DMARC/DKIM** (TXT records) and the real phone/email swap-in.
 
 **Deferred — needs the logo (pending from Robbie):**
 - Swap the placeholder favicon for the real mark.
@@ -118,6 +124,6 @@ The full brochure site is **built, styled, SEO- and security-hardened, and live 
 - **About:** banner masthead + prose reading column with gold drop cap, signature, and a closing flourish/CTA.
 - **Visit & Contact:** banner masthead, Hours + Find Us panels, embedded Google map, and a `mailto:` message box.
 
-Still placeholder: the **logo** (favicon + header slot both ready to swap), some content (event details, About copy, phone number).
+The site is now live on its **real custom domain** (`portalandquill.com`, proxied through Cloudflare, canonical-host redirect in place, Search Console verified/indexed) instead of the interim `fly.dev` URL. Still placeholder: the **logo** (favicon + header slot both ready to swap), some content (event details, About copy, phone number), and the **mailbox** (Google Workspace setup paused mid-flow, resume later).
 
-**Possible next steps:** the SEO/hardening **"Do now" set is shipped** — what remains on that roadmap is **domain-gated** (canonical 301 + flip `SITE_URL`, Search Console, Cloudflare/DNSSEC, SPF/DMARC) and **logo-gated** (real favicon, branded 1200×630 OG image), plus dropping the **real phone** into the JSON-LD + Visit page once Robbie provides it. Beyond that: swap in the real logo, finalize placeholder content, build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components, and the parked backend projects (events database, server-side contact form).
+**Possible next steps:** the SEO/hardening roadmap's domain-gated work is **done** (canonical 301, `SITE_URL` flip, Search Console, Cloudflare proxy). What's left is **logo-gated** (real favicon, branded 1200×630 OG image) and **mailbox-gated** (resume Google Workspace setup, then SPF/DMARC/DKIM + drop the real phone/email into JSON-LD + Visit page). Beyond that: swap in the real logo, finalize placeholder content, build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components, and the parked backend projects (events database, server-side contact form).
