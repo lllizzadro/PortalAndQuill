@@ -1,8 +1,8 @@
-from flask import Flask, render_template, Response
+from flask import Flask, render_template, Response, request, redirect
 
 app = Flask(__name__)
 
-SITE_URL = 'https://portalandquill.fly.dev'
+SITE_URL = 'https://portalandquill.com'
 
 STRUCTURED_DATA = {
     "@context": "https://schema.org",
@@ -91,6 +91,11 @@ def page_not_found(e):
 @app.context_processor
 def inject_globals():
     return {"site_url": SITE_URL, "structured_data": STRUCTURED_DATA}
+
+@app.before_request
+def before_request():
+    if ("www" in request.host or "fly.dev" in request.host):
+        return redirect(SITE_URL + request.path, code=301)
 
 @app.after_request
 def set_security_headers(response):
