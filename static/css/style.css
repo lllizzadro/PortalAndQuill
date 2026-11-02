@@ -52,6 +52,12 @@ header > a { /* The Portal and Quill Wordmark */
     letter-spacing: 1px;
 }
 
+.site-logo img {
+    display: block;   /* removes the sliver of gap inline images get */
+    height: 3rem;     /* YOU set the size — start here, we'll tune it */
+    width: auto;      /* height drives it; width follows the viewBox ratio */
+}
+
 nav {
     display: flex;
     flex-direction: column;
@@ -532,12 +538,11 @@ footer {
     text-align: center;
 }
 
-.footer-wordmark {
-    font-family: var(--font-display);
-    font-size: 1.3rem;
-    letter-spacing: 1px;
-    color: var(--color-text);
-    margin: 0;
+.footer-mark {
+    display: block;
+    height: 3.5rem;    /* square monogram — tune to taste */
+    width: auto;
+    margin: 0 auto;    /* centers it */
 }
 
 .footer-tagline {

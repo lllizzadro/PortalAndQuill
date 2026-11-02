@@ -203,6 +203,9 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# Claude Code (local editor/harness tooling, e.g. launch.json)
+.claude/
+
 # Ruff stuff:
 .ruff_cache/
 
