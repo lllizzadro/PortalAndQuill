@@ -23,7 +23,7 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 - **Type:** `--font-display` = Cinzel (headings/wordmark), `--font-body` = EB Garamond (reading); loaded from Google Fonts in `base.html`. Parchment for reading text, muted for secondary/meta. (EB Garamond uses oldstyle numerals by default.)
 - **Buttons:** `.btn` = primary (aubergine fill + gold border); `.btn.btn-secondary` = gold outline. Hover lifts/glows; `:focus-visible` gold ring. One primary per view, secondary for lesser actions.
 - **Imagery:** real art lives in `static/images/` as optimized JPEGs (hero, event card thumbnails, per-page banners). **Workflow for new art:** convert the source PNG and resize — `sips -s format jpeg -s formatOptions 80 -Z 1600 in.png --out out.jpg` — keep files small (≈<300 KB); the heavy source PNGs are not committed. Transparent overlay textures must stay PNG, not JPEG.
-- **Logo:** owner will provide one later; placeholder slot in the header in `base.html`. Favicon is a placeholder gold-portal SVG (`static/favicon.svg`) — swap both when the logo arrives.
+- **Logo (in, 2026-11-02):** the designer delivered a full set — a **wordmark** and a **"PQ" lettermark**, each in v1/v2, cream/green, `eps/pdf/png/svg`. The site uses the **v1 Cream SVGs**: the wordmark (`static/logo-wordmark.svg`) is the header home-link, the lettermark/monogram (`static/logo-mark.svg`) is the footer mark, and the favicon (`static/favicon.svg`) is the monogram on a deep-green (`--color-bg`) rounded square. Logos are placed as `<img>` and sized in CSS — an SVG with only a `viewBox` has no intrinsic size, so set `height` and let `width:auto` keep the ratio. **Asset organization:** vector brand assets (both logos + favicon) live in `static/` root; `static/images/` stays photographic JPEGs. The designer's source bundle (PDF/EPS/PNG + the unused v2 and green variants) is **not** committed. See the CSP/SVG note in Security.
 
 ## Decisions already settled (don't re-propose)
 
@@ -39,19 +39,20 @@ A **brochure / info site** — no catalog, accounts, or payments (for now).
 ## Tech stack & structure
 
 - Python 3.14, Flask. Dependencies pinned in `requirements.txt` (includes **gunicorn**, the production server).
-- `app.py` — page routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`), plus utility routes `robots` (`/robots.txt`, `text/plain`) and `sitemap` (`/sitemap.xml`, `application/xml`, rendered from the `sitemap.xml` template). A module-level `EVENTS` list (list of dicts) is the single source of truth for events; `home` passes `EVENTS[:3]` (preview), `events` passes the full list. `SITE_URL` constant = the canonical base URL (now the **real domain**, `https://portalandquill.com`); `STRUCTURED_DATA` dict = the JSON-LD `BookStore` schema. An `@app.context_processor` (`inject_globals`) exposes `site_url` + `structured_data` to every template. An `@app.before_request` hook (`before_request`) 301-redirects non-canonical hosts (`www.portalandquill.com`, `portalandquill.fly.dev`) to `SITE_URL + request.path`, checking `request.host` (not `request.url`, to avoid false-positive substring matches). An `@app.errorhandler(404)` renders the themed `404.html` with a real `404` status. An `@app.after_request` hook stamps **security headers + a strict CSP** on every response (see Security).
+- `app.py` — page routes: `home` (`/`), `about` (`/about`), `visit` (`/visit`), `events` (`/events`), plus utility routes `robots` (`/robots.txt`, `text/plain`) and `sitemap` (`/sitemap.xml`, `application/xml`, rendered from the `sitemap.xml` template). A module-level `Events` list (list of dicts) is the single source of truth for events; `home` passes `Events[:3]` (preview), `events` passes the full list. `SITE_URL` constant = the canonical base URL (now the **real domain**, `https://portalandquill.com`); `STRUCTURED_DATA` dict = the JSON-LD `BookStore` schema. An `@app.context_processor` (`inject_globals`) exposes `site_url` + `structured_data` to every template. An `@app.before_request` hook (`before_request`) 301-redirects non-canonical hosts (`www.portalandquill.com`, `portalandquill.fly.dev`) to `SITE_URL + request.path`, checking `request.host` (not `request.url`, to avoid false-positive substring matches). An `@app.errorhandler(404)` renders the themed `404.html` with a real `404` status. An `@app.after_request` hook stamps **security headers + a strict CSP** on every response (see Security).
 - `templates/`
-  - `base.html` — shared shell (head, header, hamburger nav, footer). Nav is a `nav_links` list looped with `{% for %}`; active link via `request.endpoint`. Footer has wordmark, tagline, an Instagram link, and copyright. Favicon linked here.
+  - `base.html` — shared shell (head, header, hamburger nav, footer). The header home-link is the **wordmark logo** (`<img>`, `.site-logo`); nav is a `nav_links` list looped with `{% for %}`; active link via `request.endpoint`. Footer has the **monogram logo** (`<img>`, `.footer-mark`), tagline, an Instagram link, and copyright. Favicon linked here.
   - `_macros.html` — the `page_header(title, intro, kicker, variant)` macro for secondary-page mastheads (kicker + Cinzel title + intro + ✦ divider + constellation SVG). The per-page banner image is set in CSS via `.page-header.<variant>` (e.g. `.page-header.events`), **not** inline. Any template using the macro must `{% import "_macros.html" as ui %}` (imports are per-template, not global).
   - page templates `{% extends "base.html" %}` and fill `{% block content %}`.
 - `static/css/style.css` — design tokens + all styles. Reusable components: `.btn`/`.btn-secondary`, `.card`, `.section`, `.prose` (centered reading column), `.page-header`, `.visit-block`, the `.hours`/`.contact` row lists, footer, etc.
-- `static/js/nav.js` — animated hamburger nav toggle (transitions `max-height`/`opacity`), plus the Visit page "Email Us" button (builds a `mailto:` to info@portalandquill.com from the textarea; guarded with `if (emailBtn)` so it's harmless on pages without it).
-- `static/favicon.svg` — placeholder gold-portal favicon. `static/images/` — optimized JPEGs only.
+- `static/js/nav.js` — animated hamburger nav toggle (transitions `max-height`/`opacity`), plus the Visit page "Email Us" button (builds a `mailto:` to hello@portalandquill.com from the textarea; guarded with `if (emailBtn)` so it's harmless on pages without it).
+- `static/favicon.svg` — the **"PQ" monogram** on a deep-green rounded square (built from `logo-mark.svg` plus a background `<rect>`). `static/logo-wordmark.svg` / `static/logo-mark.svg` — the cream brand marks (vector). `static/images/` — optimized JPEGs only (photos).
 - Deploy/config files: `Dockerfile`, `.dockerignore`, `fly.toml`, `.github/workflows/fly-deploy.yml`.
 
 ## Security
 
 - A Flask `after_request` sets baseline headers (`Strict-Transport-Security` (HSTS, `max-age=31536000`), `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options: DENY`, `Permissions-Policy`) plus a **strict Content-Security-Policy** — no `'unsafe-inline'`; allowlists only Google Fonts (`fonts.googleapis.com`/`fonts.gstatic.com`) and the Google Maps iframe (`www.google.com`/`maps.google.com`). If you add an external resource or any inline script/style, the CSP must be updated or it'll be blocked.
+- **SVG fill vs. the CSP (don't regress):** the strict `style-src` (no `'unsafe-inline'`) blocks an SVG's internal `<style>` block **when the SVG is its own document** — e.g. the favicon, or opening `/static/*.svg` directly — which silently drops Illustrator's `.st0 { fill }` rule and the mark renders **black**. The header/footer logos are unaffected because `<img>` renders SVG in sandboxed "image mode" where the host CSP doesn't apply. The **favicon** is the exception, so it sets its cream fill via `fill="#f7eedc"` on the root `<svg>` (inherited by the paths), **not** via the `<style>` class. Don't "tidy" that back into a `<style>` block.
 - No backend attack surface (no DB, accounts, or server-processed forms — contact is `mailto:`), so CSRF/input-sanitization/SQLi defenses are intentionally absent.
 - **Never run the dev server or `--debug` in production** (the Werkzeug debugger is an RCE vector) — production uses gunicorn. HTTPS is provided automatically by Fly. Run `pip-audit` periodically (and after `pip install`) for dependency CVEs.
 
@@ -62,7 +63,7 @@ Adapted from the user's other project (a portfolio site *with* a backend/guestbo
 **Done — shipped & live on Fly (2026-06-30):**
 - **HSTS** — `Strict-Transport-Security: max-age=31536000` in `after_request`. (Still holding off on `preload`/`includeSubDomains` until the custom domain is final.)
 - **Meta description** — a single **general** description (see Decisions for why not per-page).
-- **Open Graph + Twitter Card** (`summary_large_image`) in `base.html` head — title via `self.title()`, description via the shared `meta_description` var, `og:url` = `site_url + request.path`, `og:image` = interim `hero.jpg` (branded 1200×630 pending the logo).
+- **Open Graph + Twitter Card** (`summary_large_image`) in `base.html` head — title via `self.title()`, description via the shared `meta_description` var, `og:url` = `site_url + request.path`, `og:image` = branded **`og-image.jpg`** (1200×630 — darkened `hero.jpg` with the cream wordmark centered).
 - **JSON-LD** — `BookStore` schema as a Python dict (`STRUCTURED_DATA`), injected via context processor, rendered with `| tojson`. **Phone omitted** until the real number lands. The inline `<script type="application/ld+json">` is a *data block*, so it needs **no** CSP change.
 - **Themed 404** — `templates/404.html` (uses `page_header` macro with `variant="notfound"` → `border-bottom: none`), served by `@app.errorhandler(404)` returning a real `404` status.
 - **`robots.txt` + `sitemap.xml`** — both served as **routes** (not static files) built from `SITE_URL`; robots `text/plain`, sitemap `application/xml` from a Jinja template looping the 4 page endpoints. Sitemap is intentionally minimal (`<loc>` only — no fabricated `lastmod`/`changefreq`/`priority`).
@@ -80,11 +81,11 @@ Adapted from the user's other project (a portfolio site *with* a backend/guestbo
 - **DNSSEC — deliberately skipped**, not just deferred. Judged low-value for a static brochure site with no accounts/logins/payments (see Decisions).
 
 **Paused — Robbie hit setup trouble, resume later:**
-- **Google Workspace mailbox** (`info@portalandquill.com`) — Robbie started Workspace signup but got stuck; picking back up at an unspecified later date. Once live, this unblocks **SPF/DMARC/DKIM** (TXT records) and the real phone/email swap-in.
+- **Google Workspace mailbox** — Robbie started Workspace signup but got stuck; picking back up at an unspecified later date. **Note (2026-11-02):** the site's contact now points at `hello@portalandquill.com` (changed from `info@`), so the mailbox — or an alias — needs to be `hello@` to actually receive mail. Once live, this unblocks **SPF/DMARC/DKIM** (TXT records) and the real phone/email swap-in.
 
-**Deferred — needs the logo (pending from Robbie):**
-- Swap the placeholder favicon for the real mark.
-- A properly **branded OG image** (1200×630). An interim one cut from existing art is fine in the meantime.
+**Done — logo delivered & placed (2026-11-02):**
+- Real logo in: **wordmark** in the header, **monogram** in the footer, and the placeholder favicon swapped for the real **monogram** (see Design system).
+- **Branded OG image** — `static/images/og-image.jpg` (1200×630: darkened `hero.jpg` + centered cream wordmark); `og:image`/`twitter:image` now point at it instead of the bare hero. (JSON-LD `image` intentionally stays `hero.jpg` — that field is the storefront/ambiance image, not a branded card.)
 
 **Not applicable now — would only matter if a backend is ever added** (server-side contact form, events DB, accounts/sessions). Revisit these *together* if that day comes:
 - **CSRF** (`CSRFProtect` / Flask-WTF) + `{{ csrf_token() }}`, **honeypot** field — defend server-processed forms.
@@ -118,12 +119,12 @@ The site is **live on Fly.io**. Production runs **gunicorn** (`gunicorn app:app 
 
 The full brochure site is **built, styled, SEO- and security-hardened, and live on Fly.io with CI/CD**, mobile-first, in the deep-green-and-gold "render 2" look:
 
-- Shared header with responsive **animated** hamburger nav + active-page highlight. Footer: wordmark, "Books Beyond Worlds" tagline, Instagram link, copyright.
-- **Home:** full-bleed hero (image with overlaid title) + "Upcoming Events" preview (3 cards from `EVENTS`).
-- **Events:** banner masthead + long-form event list (shares `EVENTS`).
+- Shared header (wordmark logo + responsive **animated** hamburger nav + active-page highlight). Footer: monogram logo, tagline, Instagram link, copyright.
+- **Home:** full-bleed hero (image with overlaid title) + "Upcoming Events" preview (first 3 of `Events`; currently the single Soft Opening card).
+- **Events:** banner masthead + long-form event list (shares `Events`).
 - **About:** banner masthead + prose reading column with gold drop cap, signature, and a closing flourish/CTA.
 - **Visit & Contact:** banner masthead, Hours + Find Us panels, embedded Google map, and a `mailto:` message box.
 
-The site is now live on its **real custom domain** (`portalandquill.com`, proxied through Cloudflare, canonical-host redirect in place, Search Console verified/indexed) instead of the interim `fly.dev` URL. Still placeholder: the **logo** (favicon + header slot both ready to swap), some content (event details, About copy, phone number), and the **mailbox** (Google Workspace setup paused mid-flow, resume later).
+The site is now live on its **real custom domain** (`portalandquill.com`, proxied through Cloudflare, canonical-host redirect in place, Search Console verified/indexed) instead of the interim `fly.dev` URL. The **real logo is now in** (wordmark header, monogram footer, real favicon). Still placeholder: some content (About copy, phone number), and the **mailbox** (Google Workspace setup paused mid-flow, resume later).
 
-**Possible next steps:** the SEO/hardening roadmap's domain-gated work is **done** (canonical 301, `SITE_URL` flip, Search Console, Cloudflare proxy). What's left is **logo-gated** (real favicon, branded 1200×630 OG image) and **mailbox-gated** (resume Google Workspace setup, then SPF/DMARC/DKIM + drop the real phone/email into JSON-LD + Visit page). Beyond that: swap in the real logo, finalize placeholder content, build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components, and the parked backend projects (events database, server-side contact form).
+**Possible next steps:** domain-gated work is **done**, the **logo is placed** (header/footer/favicon), and the **branded OG image** is in. What's left is **mailbox-gated** work (resume Google Workspace setup, then SPF/DMARC/DKIM + drop the real phone/email into JSON-LD + Visit page). Beyond that: finalize placeholder content, build the "later" pages (FAQ, Books & Recommendations) reusing the macro/components, and the parked backend projects (events database, server-side contact form).
