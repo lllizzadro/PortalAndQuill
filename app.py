@@ -30,9 +30,9 @@ STRUCTURED_DATA = {
 
 Events = [
     {
-    "month": "Nov", "day": "09",
+    "month": "Date", "day": "TBD", #"Nov", "day": "09",
     "title": "Portal & Quill Soft Opening",
-    "when": "Mon, Nov 9 · 12:00 PM",
+    "when": "TBD",#"Mon, Nov 9 · 12:00 PM",
     "image": "cardBook.jpg",
     "description": "Portal & Quill is opening its doors. Come browse before anyone else, say hello, and help us turn the first page of the story. New friends and new worlds await.",
 },
